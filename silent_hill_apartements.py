@@ -63,6 +63,10 @@ def send_notification_email(new_matches, target_date):
     if not new_matches:
         return
 
+    # Split the env string into a list of individual emails
+    # This handles both a single email or a comma-separated list
+    recipient_list = [email.strip() for email in EMAIL_RECIPIENT.split(",")]
+
     subject = f"NEW Apartment Alert: {len(new_matches)} Units Found for {target_date}"
     rows = "".join([f"<tr><td>{m['property']}</td><td>{m['unit']}</td><td>{m['price']}</td><td>{m['size']}</td><td>{m['available']}</td><td><a href='{m['url']}'>View</a></td></tr>" for m in new_matches])
     body = f"<html><body><h2>New Units Found for {target_date}</h2><table border='1' cellpadding='6' cellspacing='0'><tr><th>Property</th><th>Unit</th><th>Price</th><th>Size</th><th>Available</th><th>Link</th></tr>{rows}</table></body></html>"
@@ -70,13 +74,15 @@ def send_notification_email(new_matches, target_date):
     msg = MIMEText(body, "html")
     msg['Subject'] = subject
     msg['From'] = EMAIL_SENDER
-    msg['To'] = EMAIL_RECIPIENT
+    # The 'To' header should be a comma-separated string
+    msg['To'] = ", ".join(recipient_list)
 
     try:
         with smtplib.SMTP_SSL('smtp.gmail.com', 465) as server:
             server.login(EMAIL_SENDER, EMAIL_PASSWORD)
-            server.sendmail(EMAIL_SENDER, EMAIL_RECIPIENT, msg.as_string())
-        print(f"      >>> NEW units found! Email sent to {EMAIL_RECIPIENT}")
+            # sendmail requires a LIST of addresses for the second argument
+            server.sendmail(EMAIL_SENDER, recipient_list, msg.as_string())
+        print(f"      >>> NEW units found! Email sent to: {msg['To']}")
     except Exception as e:
         print(f"      ! Email failed: {e}")
 
