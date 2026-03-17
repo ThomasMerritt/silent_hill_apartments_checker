@@ -42,7 +42,7 @@ else:
     OUTPUT_DIR = "/tmp/apartment_outputs"
 
 TARGET_DATE = "6/1"
-INTERVAL_SECONDS = 300
+INTERVAL_SECONDS = 3600
 sent_notifications = set()
 
 def get_pi_temp():
@@ -211,7 +211,7 @@ if __name__ == "__main__":
             run_apartment_scanner(TARGET_DATE, current_batch)
             
             cycle_count += 1
-            print(f"Cycle {cycle_count} complete (Temp: {get_pi_temp()}°C). Sleeping 5 mins...")
+            print(f"Cycle {cycle_count} complete (Temp: {get_pi_temp()}°C). Sleeping {INTERVAL_SECONDS} seconds...")
             time.sleep(INTERVAL_SECONDS)
             
         except KeyboardInterrupt:
